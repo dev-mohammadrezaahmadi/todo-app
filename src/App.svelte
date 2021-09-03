@@ -1,30 +1,58 @@
 <script>
-	export let name;
+	import {v4 as uuidv4} from 'uuid'
+	import { items } from "./store";
+	let newTodo = ""
+	function addTodo() {
+		items.update(items => [...items, {
+			title: newTodo,
+			id: uuidv4(),
+			done: false
+		}])
+		newTodo = ''
+	}
+	function removeTodo(id) {
+		items.update(items => items.filter(item => item.id !== id))
+	}
 </script>
 
+<svelte:head>
+	<title>Todo app</title>
+</svelte:head>
+
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	<form on:submit|preventDefault={addTodo}  action="">
+	<label for="todo">
+		todo
+	</label>
+	<input bind:value={newTodo} type="text" id="todo">
+	<button>add todo</button>
+</form>
+<ul>
+	<h2>undone</h2>
+	{#each $items as item (item.id)}
+	{#if item.done === false}
+		
+	<li>{item.title}</li>
+	<button on:click={() => removeTodo(item.id)}>remove</button>
+	<input bind:checked={item.done} type="checkbox">
+	{/if}
+	{/each}
+</ul>
+<ul>
+	<h2>done</h2>
+	{#each $items as item (item.id)}
+	{#if item.done === true}
+		
+	<li class={item.done && 'done'}>{item.title}</li>
+	<button on:click={() => removeTodo(item.id)}>remove</button>
+	<input bind:checked={item.done} type="checkbox">
+	{/if}
+	{/each}
+</ul>
 </main>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
+	.done {
+		text-decoration: line-through;
 	}
 </style>
